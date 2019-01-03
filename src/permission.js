@@ -1,4 +1,6 @@
 import router from './router'
+import store from './store'
+import { Message } from 'element-ui'
 import NProgress from 'nprogress' // Progress 进度条
 import 'nprogress/nprogress.css'// Progress 进度条样式
 import { getToken } from '@/utils/auth' // 验权
@@ -11,6 +13,14 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' })
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
+      if (!store.getters.username) { // 判断当前用户是否已拉取完user_info信息
+        store.dispatch('GetUserInfo').then().catch((err) => {
+          store.dispatch('FedLogOut').then(() => {
+            Message.error(err || 'Verification failed, please login again')
+            next({ path: '/' })
+          })
+        })
+      }
       next()
     }
   } else {

@@ -4,10 +4,10 @@
 
       <sticky :class-name="postForm.status===1?'sub-navbar published':'sub-navbar draft'">
         <CommentDropdown v-model="postForm.isComment" />
-        <TopDropdown v-model="postForm.isTop" />
-        <el-button v-loading="loading" type="warning" @click="submitForm(0)">草稿</el-button>
-        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm(1)">发布
-        </el-button>
+        <TopDropdown v-model="postForm.isTop" style="margin-left: 10px;" />
+        <el-button v-loading="loading" style="margin-left: 10px;" type="info" @click="submitForm(3)">自定义</el-button>
+        <el-button v-loading="loading" style="margin-left: 10px;" type="warning" @click="submitForm(0)">草稿</el-button>
+        <el-button v-loading="loading" style="margin-left: 10px;" type="success" @click="submitForm(1)">发布</el-button>
       </sticky>
 
       <div class="createPost-main-container">
@@ -59,9 +59,9 @@
 
             <el-col :span="10">
               <el-form-item label-width="80px" label="访问链接:" class="postInfo-container-item">
-                <el-input v-model="postForm.url" placeholder="默认为当前时间戳" class="postInfo-container-input">
-                  <template slot="prepend">Http://</template>
-                  <template slot="append">.com</template>
+                <el-input v-model="postForm.url" placeholder="请输入链接" class="postInfo-container-input">
+                  <template slot="prepend">{{ this.$store.getters.global.BLOG_URL }}</template>
+                  <template slot="append">.html</template>
                 </el-input>
               </el-form-item>
             </el-col>
@@ -178,9 +178,8 @@ export default {
       putArticle(id).then(response => {
         this.postForm = response.data
         // Just for test
-        this.postForm.title += `   Article Id:${this.postForm.id}`
-        this.postForm.description += `   Article Id:${this.postForm.id}`
-
+        // this.postForm.title += `   Article Id:${this.postForm.id}`
+        // this.postForm.description += `   Article Id:${this.postForm.id}`
         // Set tagsview title
         this.setTagsViewTitle()
       }).catch(err => {
@@ -207,10 +206,11 @@ export default {
         this.loading = true
         this.$notify({
           title: '成功',
-          message: '发布文章成功',
+          message: '保存文章成功',
           type: 'success',
           duration: 2000
         })
+        this.postForm = response.data
         this.loading = false
         // Set tagsview title
         this.setTagsViewTitle()

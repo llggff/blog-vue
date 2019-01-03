@@ -1,6 +1,7 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">name:{{ this.$store.getters.name }}</div>
+    <div class="dashboard-text">用户名:{{ this.$store.getters.username }}</div>
+    <div class="dashboard-text">昵称:{{ this.$store.getters.nickname }}</div>
   </div>
 </template>
 

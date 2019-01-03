@@ -23,7 +23,7 @@ export default {
     }
   },
   computed: {
-    is_top: {
+    is_comment: {
       get() {
         return this.value
       },

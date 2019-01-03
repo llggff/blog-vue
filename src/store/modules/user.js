@@ -1,10 +1,11 @@
-import { login, logout } from '@/api/login'
+import { login, logout, getInfo } from '@/api/login'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
   state: {
     token: getToken(),
-    name: '',
+    nickname: '',
+    username: '',
     avatar: '',
     global: {}
   },
@@ -13,8 +14,11 @@ const user = {
     SET_TOKEN: (state, token) => {
       state.token = token
     },
-    SET_NAME: (state, name) => {
-      state.name = name
+    SET_USERNAME: (state, username) => {
+      state.username = username
+    },
+    SET_NICKNAME: (state, nickname) => {
+      state.nickname = nickname
     },
     SET_AVATAR: (state, avatar) => {
       state.avatar = avatar
@@ -31,15 +35,30 @@ const user = {
       return new Promise((resolve, reject) => {
         login(username, userInfo.password).then(response => {
           console.log(response.msg)
-          const data = response.data
-          setToken(data.token)
-          commit('SET_TOKEN', data.token)
-          commit('SET_NAME', data.name)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_GLOBAL', data.global)
+          commit('SET_TOKEN', response.data)
+          setToken(response.data)
           resolve()
         }).catch(error => {
           console.log(error)
+          reject(error)
+        })
+      })
+    },
+
+    // 获取用户信息
+    GetUserInfo({ commit, state }) {
+      return new Promise((resolve, reject) => {
+        getInfo(state.token).then(response => {
+          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
+            reject('error')
+          }
+          const data = response.data
+          commit('SET_USERNAME', data.username)
+          commit('SET_NICKNAME', data.nickname)
+          commit('SET_AVATAR', data.avatar)
+          commit('SET_GLOBAL', data.global)
+          resolve(response)
+        }).catch(error => {
           reject(error)
         })
       })
