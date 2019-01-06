@@ -24,26 +24,10 @@ export function postArticle(data) {
   })
 }
 
-export function fetchPv(pv) {
+export function deleteArticle(id, status, isDelete) {
   return request({
-    url: '/article/pv',
-    method: 'get',
-    params: { pv }
-  })
-}
-
-export function createArticle(data) {
-  return request({
-    url: '/article/create',
-    method: 'post',
-    data
-  })
-}
-
-export function updateArticle(data) {
-  return request({
-    url: '/article/update',
-    method: 'post',
-    data
+    url: '/article',
+    method: 'delete',
+    params: { id, status, isDelete }
   })
 }

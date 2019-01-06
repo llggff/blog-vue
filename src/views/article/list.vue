@@ -5,7 +5,7 @@
       <el-select v-model="listQuery.categoryId" filterable clearable placeholder="选择分类" class="filter-item">
         <el-option v-for="item in categoryOptions" :key="item.id" :label="item.name" :value="item.id"/>
       </el-select>
-      <el-select v-if="!isCustom" v-model="listQuery.status" placeholder="文章状态" clearable class="filter-item" style="width: 130px">
+      <el-select v-if="articleStatus===0" v-model="listQuery.status" placeholder="文章状态" clearable class="filter-item" style="width: 130px">
         <el-option key="0" label="草稿" value="0"/>
         <el-option key="1" label="已发布" value="1"/>
       </el-select>
@@ -24,11 +24,11 @@
       <el-table-column header-align="center" label="标题" min-width="100">
         <template slot-scope="scope">
           <a :href="$store.getters.global.BLOG_URL+scope.row.url+'.html'" class="link-type" target="_blank">{{ scope.row.title }}</a>
-          <el-tag v-if="!isCustom">{{ categoryFilter(scope.row.categoryId) }}</el-tag>
+          <el-tag v-if="articleStatus===0">{{ categoryFilter(scope.row.categoryId) }}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column v-if="!isCustom" align="center" label="标签" min-width="100">
+      <el-table-column v-if="articleStatus===0" align="center" label="标签" min-width="100">
         <template slot-scope="scope">
           <el-tag v-for="(tag, index) in scope.row.tags" :key="tag.id" :type="tagType(index)">
             {{ tag.name }}
@@ -38,9 +38,9 @@
 
       <el-table-column :show-overflow-tooltip="true" header-align="center" min-width="100" label="描述" prop="description"/>
 
-      <el-table-column v-if="isCustom" :show-overflow-tooltip="true" header-align="center" min-width="150" label="内容" prop="contentMd"/>
+      <el-table-column v-if="articleStatus>0" :show-overflow-tooltip="true" header-align="center" min-width="150" label="内容" prop="contentMd"/>
 
-      <el-table-column v-if="!isCustom" align="center" label="预览图" width="80">
+      <el-table-column v-if="articleStatus!=3" align="center" label="预览图" width="80">
         <template slot-scope="scope">
           <el-popover
             placement="left"
@@ -57,31 +57,39 @@
 
       <el-table-column :formatter="formatTime" width="100" align="center" sortable="custom" label="更新时间" prop="updateTime"/>
 
-      <el-table-column v-if="!isCustom" align="center" label="状态" width="80">
+      <el-table-column v-if="articleStatus===0" align="center" label="状态" width="80">
         <template slot-scope="scope">
-          <el-tag :type="scope.row.status==1? 'success' : 'info'">{{ scope.row.status==1?'已发布':'草稿' }}</el-tag>
+          <el-tag :type="scope.row.status===1? 'success' : 'info'">{{ scope.row.status===1?'已发布':'草稿' }}</el-tag>
         </template>
       </el-table-column>
 
-      <el-table-column v-if="!isCustom" align="center" label="置顶" width="80">
+      <el-table-column v-if="articleStatus===0" align="center" label="置顶" width="80">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.top"/>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="评论" width="80">
+      <el-table-column v-if="articleStatus!=2" align="center" label="评论" width="80">
         <template slot-scope="scope">
           <el-switch v-model="scope.row.comment" active-color="#13ce66" inactive-color="#ff4949"/>
         </template>
       </el-table-column>
 
-      <el-table-column align="center" label="操作" width="200">
+      <el-table-column :width="articleStatus===2?300:200" align="center" label="操作">
         <template slot-scope="scope">
           <router-link :to="'/article/edit/'+scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
           </router-link>
-          <el-button size="mini" icon="el-icon-delete" style="margin-left: 10px;" type="danger" @click="handleModifyStatus(scope.row,'deleted')">删除
-          </el-button>
+          <template v-if="articleStatus===2">
+            <el-button size="mini" icon="el-icon-refresh" style="margin-left: 10px;" type="success" @click="handleModifyStatus(scope.row.id,1)">还原
+            </el-button>
+            <el-button size="mini" icon="el-icon-delete" style="margin-left: 10px;" type="danger" @click="deleteArticle(scope.row.id)">彻底删除
+            </el-button>
+          </template>
+          <template v-else>
+            <el-button size="mini" icon="el-icon-delete" style="margin-left: 10px;" type="danger" @click="handleModifyStatus(scope.row.id,2)">删除
+            </el-button>
+          </template>
         </template>
       </el-table-column>
     </el-table>
@@ -92,7 +100,7 @@
 </template>
 
 <script>
-import { getArticle } from '@/api/article'
+import { getArticle, deleteArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils'
@@ -101,9 +109,9 @@ export default {
   name: 'ArticleList',
   components: { Pagination },
   props: {
-    isCustom: {
-      type: Boolean,
-      default: false
+    articleStatus: {
+      type: Number,
+      default: 0
     }
   },
   data() {
@@ -124,8 +132,8 @@ export default {
     }
   },
   created() {
-    if (this.isCustom) {
-      this.listQuery.status = 3
+    if (this.articleStatus > 0) {
+      this.listQuery.status = this.articleStatus
     }
     getCategory().then(response => {
       this.categoryOptions = response.data
@@ -136,7 +144,7 @@ export default {
     getList() {
       this.listLoading = true
       getArticle(this.listQuery).then(response => {
-        this.$message.success(response.msg)
+        // this.$message.success(response.msg)
         this.list = response.data.records
         this.total = response.data.total
         this.listLoading = false
@@ -158,6 +166,35 @@ export default {
           return category.name
         }
       }
+    },
+    // 修改状态
+    handleModifyStatus(id, status) {
+      this.listLoading = true
+      deleteArticle(id, status, false).then(response => {
+        this.$message.success(response.msg)
+        this.listLoading = false
+        this.getList()
+      })
+    },
+    // 删除文章
+    deleteArticle(id) {
+      this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
+        confirmButtonText: '确定',
+        cancelButtonText: '取消',
+        type: 'warning'
+      }).then(() => {
+        this.listLoading = true
+        deleteArticle(id, 0, true).then(response => {
+          this.$message.success(response.msg)
+          this.listLoading = false
+          this.getList()
+        })
+      }).catch(() => {
+        this.$message({
+          type: 'info',
+          message: '已取消删除'
+        })
+      })
     },
     // 排序
     sortChange(data) {

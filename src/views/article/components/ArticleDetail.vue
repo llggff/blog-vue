@@ -18,7 +18,7 @@
         </el-form-item>
 
         <el-form-item label-width="45px" label="摘要:">
-          <el-input :rows="1" v-model="postForm.description" type="textarea" class="article-textarea" autosize placeholder="请输入内容"/>
+          <el-input :rows="1" v-model="postForm.description" type="textarea" class="article-textarea" autosize placeholder="请输入摘要"/>
           <span v-show="contentShortLength" class="word-counter">{{ contentShortLength }}字</span>
         </el-form-item>
 
@@ -59,7 +59,7 @@
 
             <el-col :span="10">
               <el-form-item label-width="80px" label="访问链接:" class="postInfo-container-item">
-                <el-input v-model="postForm.url" placeholder="请输入链接" class="postInfo-container-input">
+                <el-input v-model="postForm.url" placeholder="默认使用标题作为链接" class="postInfo-container-input">
                   <template slot="prepend">{{ this.$store.getters.global.BLOG_URL }}</template>
                   <template slot="append">.html</template>
                 </el-input>
@@ -94,8 +94,8 @@ const defaultForm = {
   content: '', // 文章内容
   contentMd: '', // markdown格式的文章内容
   categoryId: 1, // 文章分类
-  image: '', // 文章预览图
-  url: '', // 文章访问链接
+  image: undefined, // 文章预览图
+  url: undefined, // 文章访问链接
   tags: [],
   id: undefined,
   isComment: true,

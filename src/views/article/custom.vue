@@ -1,5 +1,5 @@
 <template>
-  <article-list :is-custom="true"/>
+  <article-list :article-status="3"/>
 </template>
 
 <script>
