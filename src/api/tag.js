@@ -15,11 +15,11 @@ export function putTag(id) {
   })
 }
 
-export function postTag(query) {
+export function postTag(data) {
   return request({
     url: '/tag',
     method: 'post',
-    params: query
+    data
   })
 }
 

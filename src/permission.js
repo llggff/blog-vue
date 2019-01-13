@@ -13,10 +13,18 @@ router.beforeEach((to, from, next) => {
       next({ path: '/' })
       NProgress.done() // if current page is dashboard will not trigger	afterEach hook, so manually handle it
     } else {
-      if (!store.getters.username) { // 判断当前用户是否已拉取完user_info信息
+      if (!store.getters.user) { // 获取用户信息
         store.dispatch('GetUserInfo').then().catch((err) => {
           store.dispatch('FedLogOut').then(() => {
-            Message.error(err || 'Verification failed, please login again')
+            Message.error(err || '验证失败，请重新登录')
+            next({ path: '/' })
+          })
+        })
+      }
+      if (!store.getters.user) { // 获取全局参数
+        store.dispatch('GetGlobalInfo').then().catch((err) => {
+          store.dispatch('FedLogOut').then(() => {
+            Message.error(err || '验证失败，请重新登录')
             next({ path: '/' })
           })
         })

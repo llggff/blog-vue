@@ -15,11 +15,11 @@ export function putCategory(id) {
   })
 }
 
-export function postCategory(query) {
+export function postCategory(data) {
   return request({
     url: '/category',
     method: 'post',
-    params: query
+    data
   })
 }
 

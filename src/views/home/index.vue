@@ -1,9 +1,19 @@
 <template>
   <div class="dashboard-container">
-    <div class="dashboard-text">用户名:{{ this.$store.getters.username }}</div>
-    <div class="dashboard-text">昵称:{{ this.$store.getters.nickname }}</div>
+    <div class="dashboard-text">用户名:{{ user.username }}</div>
+    <div class="dashboard-text">昵称:{{ user.nickname }}</div>
   </div>
 </template>
+
+<script>
+import { mapGetters } from 'vuex'
+
+export default {
+  computed: {
+    ...mapGetters(['user'])
+  }
+}
+</script>
 
 <style rel="stylesheet/scss" lang="scss" scoped>
 .dashboard {

@@ -3639,13 +3639,13 @@ hex-color-regex@^1.1.0:
 
 highlight.js-async-webpack@^1.0.4:
   version "1.0.4"
-  resolved "http://registry.npm.taobao.org/highlight.js-async-webpack/download/highlight.js-async-webpack-1.0.4.tgz#c06b67bf99f049045d62b756e5855b0912ec616c"
+  resolved "https://registry.yarnpkg.com/highlight.js-async-webpack/-/highlight.js-async-webpack-1.0.4.tgz#c06b67bf99f049045d62b756e5855b0912ec616c"
   integrity sha1-wGtnv5nwSQRdYrdW5YVbCRLsYWw=
 
 highlight.js@^9.11.0:
   version "9.13.1"
-  resolved "http://registry.npm.taobao.org/highlight.js/download/highlight.js-9.13.1.tgz#054586d53a6863311168488a0f58d6c505ce641e"
-  integrity sha1-BUWG1TpoYzERaEiKD1jWxQXOZB4=
+  resolved "https://registry.yarnpkg.com/highlight.js/-/highlight.js-9.13.1.tgz#054586d53a6863311168488a0f58d6c505ce641e"
+  integrity sha512-Sc28JNQNDzaH6PORtRLMvif9RSn1mYuOoX3omVjnb0+HbpPygU2ALBI0R/wsiqCb4/fcp07Gdo8g+fhtFrQl6A==
 
 hmac-drbg@^1.0.0:
   version "1.0.1"
@@ -4654,8 +4654,8 @@ map-visit@^1.0.0:
 
 mavon-editor@^2.6.17:
   version "2.6.17"
-  resolved "http://registry.npm.taobao.org/mavon-editor/download/mavon-editor-2.6.17.tgz#86fb4f5a88553c16d0d9f173ed69ebcfa0f1ae7e"
-  integrity sha1-hvtPWohVPBbQ2fFz7Wnrz6Dxrn4=
+  resolved "https://registry.yarnpkg.com/mavon-editor/-/mavon-editor-2.6.17.tgz#86fb4f5a88553c16d0d9f173ed69ebcfa0f1ae7e"
+  integrity sha512-QKf5UtraxOjL3E9s5log/UCoaHKafC1DyiSbHgXWtRn00723SwDHbnT+aFFRaoD/O53NdUfsBDBVfwZrXl7vEw==
   dependencies:
     highlight.js "^9.11.0"
     highlight.js-async-webpack "^1.0.4"

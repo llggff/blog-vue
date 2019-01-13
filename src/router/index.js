@@ -36,7 +36,6 @@ export const constantRouterMap = [
       meta: { title: '首页', icon: 'home', noCache: true }
     }]
   },
-
   {
     path: '/article',
     component: Layout,
@@ -79,6 +78,50 @@ export const constantRouterMap = [
         meta: { title: '回收站', icon: 'recycle-bin' }
       }
     ]
+  },
+  {
+    path: '/category',
+    component: Layout,
+    redirect: '/category/list',
+    children: [{
+      path: 'list',
+      name: 'categoryList',
+      component: () => import('@/views/category/index'),
+      meta: { title: '分类管理', icon: 'category', noCache: true }
+    }]
+  },
+  {
+    path: '/tag',
+    component: Layout,
+    redirect: '/tag/list',
+    children: [{
+      path: 'list',
+      name: 'tagList',
+      component: () => import('@/views/tag/index'),
+      meta: { title: '标签管理', icon: 'tag', noCache: true }
+    }]
+  },
+  {
+    path: '/user',
+    component: Layout,
+    redirect: '/user/info',
+    children: [{
+      path: 'info',
+      name: 'userInfo',
+      component: () => import('@/views/user/index'),
+      meta: { title: '用户信息', icon: 'user', noCache: true }
+    }]
+  },
+  {
+    path: '/config',
+    component: Layout,
+    redirect: '/config/info',
+    children: [{
+      path: 'info',
+      name: 'configInfo',
+      component: () => import('@/views/config/index'),
+      meta: { title: '配置管理', icon: 'config', noCache: true }
+    }]
   },
   { path: '*', redirect: '/404', hidden: true }
 ]

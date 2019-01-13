@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { getArticle, deleteArticle } from '@/api/article'
+import { getArticle, postArticle, deleteArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils'
@@ -170,7 +170,7 @@ export default {
     // 修改状态
     handleModifyStatus(id, status) {
       this.listLoading = true
-      deleteArticle(id, status, false).then(response => {
+      postArticle({ 'id': id, 'status': status }).then(response => {
         this.$message.success(response.msg)
         this.listLoading = false
         this.getList()
@@ -184,7 +184,7 @@ export default {
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        deleteArticle(id, 0, true).then(response => {
+        deleteArticle(id).then(response => {
           this.$message.success(response.msg)
           this.listLoading = false
           this.getList()

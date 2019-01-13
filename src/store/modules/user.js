@@ -1,27 +1,21 @@
-import { login, logout, getInfo } from '@/api/login'
+import { login, logout } from '@/api/login'
+import { putUser } from '@/api/user'
+import { getConfig } from '@/api/config'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
   state: {
     token: getToken(),
-    nickname: '',
-    username: '',
-    avatar: '',
-    global: {}
+    user: null,
+    global: null
   },
 
   mutations: {
     SET_TOKEN: (state, token) => {
       state.token = token
     },
-    SET_USERNAME: (state, username) => {
-      state.username = username
-    },
-    SET_NICKNAME: (state, nickname) => {
-      state.nickname = nickname
-    },
-    SET_AVATAR: (state, avatar) => {
-      state.avatar = avatar
+    SET_USER: (state, user) => {
+      state.user = user
     },
     SET_GLOBAL: (state, global) => {
       state.global = global
@@ -46,17 +40,22 @@ const user = {
     },
 
     // 获取用户信息
-    GetUserInfo({ commit, state }) {
+    GetUserInfo({ commit }) {
       return new Promise((resolve, reject) => {
-        getInfo(state.token).then(response => {
-          if (!response.data) { // 由于mockjs 不支持自定义状态码只能这样hack
-            reject('error')
-          }
-          const data = response.data
-          commit('SET_USERNAME', data.username)
-          commit('SET_NICKNAME', data.nickname)
-          commit('SET_AVATAR', data.avatar)
-          commit('SET_GLOBAL', data.global)
+        putUser().then(response => {
+          commit('SET_USER', response.data)
+          resolve(response)
+        }).catch(error => {
+          reject(error)
+        })
+      })
+    },
+
+    // 获取全局参数
+    GetGlobalInfo({ commit }) {
+      return new Promise((resolve, reject) => {
+        getConfig(1).then(response => {
+          commit('SET_GLOBAL', response.data)
           resolve(response)
         }).catch(error => {
           reject(error)
@@ -65,11 +64,11 @@ const user = {
     },
 
     // 登出
-    LogOut({ commit, state }) {
+    LogOut({ commit }) {
       return new Promise((resolve, reject) => {
-        logout(state.token).then(() => {
+        logout().then(() => {
           commit('SET_TOKEN', '')
-          commit('SET_ROLES', [])
+          commit('SET_USER', null)
           removeToken()
           resolve()
         }).catch(error => {
@@ -81,6 +80,7 @@ const user = {
     // 前端 登出
     FedLogOut({ commit }) {
       return new Promise(resolve => {
+        commit('SET_USER', null)
         commit('SET_TOKEN', '')
         removeToken()
         resolve()

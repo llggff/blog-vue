@@ -79,12 +79,10 @@
 import { mavonEditor } from 'mavon-editor'
 import 'mavon-editor/dist/css/index.css'
 import toolbars from './toolbars'
-import MDinput from '@/components/MDinput'
 import Sticky from '@/components/Sticky' // 粘性header组件
 import { putArticle, postArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import { getTag } from '@/api/tag'
-import { userSearch } from '@/api/remoteSearch'
 import { CommentDropdown, TopDropdown } from './Dropdown'
 import { uploadImage } from '@/api/upload'
 
@@ -106,7 +104,7 @@ const defaultForm = {
 
 export default {
   name: 'ArticleDetail',
-  components: { mavonEditor, MDinput, Sticky, CommentDropdown, TopDropdown },
+  components: { mavonEditor, Sticky, CommentDropdown, TopDropdown },
   props: {
     isEdit: {
       type: Boolean,
@@ -119,7 +117,6 @@ export default {
       categoryOptions: [],
       tagOptions: [],
       loading: false,
-      userListOptions: [],
       tempRoute: {},
       toolbars: toolbars
     }
@@ -147,10 +144,10 @@ export default {
 
     getCategory().then(response => {
       this.categoryOptions = response.data
-    })
+    }).catch()
     getTag().then(response => {
       this.tagOptions = response.data
-    })
+    }).catch()
   },
   methods: {
     // 验证图片上传格式
@@ -171,7 +168,7 @@ export default {
       formdata.append('image', file || data.file)
       uploadImage(formdata).then(response => {
         this.$message.success(response.msg)
-        file ? this.$refs.md.$img2Url(data, response.url) : this.postForm.image = response.url
+        file ? this.$refs.md.$img2Url(data, response.data) : this.postForm.image = response.data
       })
     },
     fetchData(id) {
@@ -200,10 +197,10 @@ export default {
         this.$message.warning('文章内容不能为空')
         return false
       }
+      this.loading = true
       this.postForm.status = status
       this.postForm.content = this.$refs.md.d_render
       postArticle(this.postForm).then(response => {
-        this.loading = true
         this.$notify({
           title: '成功',
           message: '保存文章成功',
@@ -215,13 +212,8 @@ export default {
         // Set tagsview title
         this.setTagsViewTitle()
       }).catch(err => {
+        this.loading = false
         console.log(err)
-      })
-    },
-    getRemoteUserList(query) {
-      userSearch(query).then(response => {
-        if (!response.data.items) return
-        this.userListOptions = response.data.items.map(v => v.name)
       })
     }
   }
