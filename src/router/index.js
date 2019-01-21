@@ -33,7 +33,7 @@ export const constantRouterMap = [
       path: 'home',
       name: 'home',
       component: () => import('@/views/home/index'),
-      meta: { title: '首页', icon: 'home', noCache: true }
+      meta: { title: '首页', icon: 'home' }
     }]
   },
   {
@@ -78,6 +78,17 @@ export const constantRouterMap = [
         meta: { title: '回收站', icon: 'recycle-bin' }
       }
     ]
+  },
+  {
+    path: '/comment',
+    component: Layout,
+    redirect: '/comment/list',
+    children: [{
+      path: 'list',
+      name: 'commentList',
+      component: () => import('@/views/comment/index'),
+      meta: { title: '评论管理', icon: 'comment', noCache: true }
+    }]
   },
   {
     path: '/category',

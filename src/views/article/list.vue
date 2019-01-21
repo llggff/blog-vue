@@ -65,13 +65,13 @@
 
       <el-table-column v-if="articleStatus===0" align="center" label="置顶" width="80">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.top"/>
+          <el-switch v-model="scope.row.isTop" @change="switchIsTop(scope.row.id,$event)"/>
         </template>
       </el-table-column>
 
       <el-table-column v-if="articleStatus!=2" align="center" label="评论" width="80">
         <template slot-scope="scope">
-          <el-switch v-model="scope.row.comment" active-color="#13ce66" inactive-color="#ff4949"/>
+          <el-switch v-model="scope.row.isComment" active-color="#13ce66" inactive-color="#ff4949" @change="switchIsComment(scope.row.id,$event)"/>
         </template>
       </el-table-column>
 
@@ -100,7 +100,7 @@
 </template>
 
 <script>
-import { getArticle, postArticle, deleteArticle } from '@/api/article'
+import { getArticle, modifyArticle, deleteArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import Pagination from '@/components/Pagination'
 import { parseTime } from '@/utils'
@@ -170,7 +170,7 @@ export default {
     // 修改状态
     handleModifyStatus(id, status) {
       this.listLoading = true
-      postArticle({ 'id': id, 'status': status }).then(response => {
+      modifyArticle({ 'id': id, 'status': status }).then(response => {
         this.$message.success(response.msg)
         this.listLoading = false
         this.getList()
@@ -209,6 +209,16 @@ export default {
     },
     tagType(index) {
       return tagTypes[index % tagTypes.length]
+    },
+    switchIsTop(id, isTop) {
+      modifyArticle({ 'id': id, 'isTop': isTop }).then(response => {
+        this.$message.success(isTop ? '置顶成功' : '取消置顶成功')
+      })
+    },
+    switchIsComment(id, isComment) {
+      modifyArticle({ 'id': id, 'isComment': isComment }).then(response => {
+        this.$message.success(isComment ? '成功开启评论' : '成功关闭评论')
+      })
     }
   }
 }

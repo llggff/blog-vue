@@ -55,10 +55,7 @@ const webpackConfig = merge(baseWebpackConfig, {
       template: 'index.html',
       inject: true,
       favicon: resolve('favicon.ico'),
-      title: 'vue-admin-template',
-      templateParameters: {
-        BASE_URL: config.dev.assetsPublicPath + config.dev.assetsSubDirectory,
-      },
+      title: 'vue-admin',
       minify: {
         removeComments: true,
         collapseWhitespace: true,
@@ -135,6 +132,9 @@ const webpackConfig = merge(baseWebpackConfig, {
       // duplicated CSS from different components can be deduped.
       new OptimizeCSSAssetsPlugin()
     ]
+  },
+  performance: {
+    hints: false
   }
 })
 

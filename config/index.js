@@ -13,7 +13,7 @@ module.exports = {
       '/api': {
         target: 'http://127.0.0.1:8080',  //目标接口域名
         changeOrigin: true,  //是否跨域
-        pathRewrite: {"^/api" : "/admin"}
+        pathRewrite: {"^/api" : "/api"}
       }
     },
     // Various Dev Server settings
@@ -49,11 +49,11 @@ module.exports = {
 
   build: {
     // Template for index.html
-    index: path.resolve(__dirname, '../dist/index.html'),
+    index: path.resolve(__dirname, '../dist/admin/index.html'),
 
     // Paths
     assetsRoot: path.resolve(__dirname, '../dist'),
-    assetsSubDirectory: 'static',
+    assetsSubDirectory: 'admin/static',
 
     /**
      * You can set by youself according to actual condition

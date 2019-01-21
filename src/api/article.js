@@ -24,10 +24,27 @@ export function postArticle(data) {
   })
 }
 
-export function deleteArticle(id, status, isDelete) {
+export function deleteArticle(id) {
   return request({
     url: '/article',
     method: 'delete',
-    params: { id, status, isDelete }
+    params: { id }
   })
 }
+
+export function latestArticle(number) {
+  return request({
+    url: '/article/latest',
+    method: 'get',
+    params: { number }
+  })
+}
+
+export function modifyArticle(data) {
+  return request({
+    url: '/article/modify',
+    method: 'post',
+    data
+  })
+}
+

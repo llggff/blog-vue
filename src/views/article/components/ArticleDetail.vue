@@ -3,7 +3,8 @@
     <el-form ref="postForm" :model="postForm" class="form-container">
 
       <sticky :class-name="postForm.status===1?'sub-navbar published':'sub-navbar draft'">
-        <CommentDropdown v-model="postForm.isComment" />
+        <OriginalDropdown v-model="postForm.isOriginal" :source-url.sync="postForm.sourceUrl"/>
+        <CommentDropdown v-model="postForm.isComment" style="margin-left: 10px;"/>
         <TopDropdown v-model="postForm.isTop" style="margin-left: 10px;" />
         <el-button v-loading="loading" style="margin-left: 10px;" type="info" @click="submitForm(3)">自定义</el-button>
         <el-button v-loading="loading" style="margin-left: 10px;" type="warning" @click="submitForm(0)">草稿</el-button>
@@ -83,7 +84,7 @@ import Sticky from '@/components/Sticky' // 粘性header组件
 import { putArticle, postArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import { getTag } from '@/api/tag'
-import { CommentDropdown, TopDropdown } from './Dropdown'
+import { CommentDropdown, TopDropdown, OriginalDropdown } from './Dropdown'
 import { uploadImage } from '@/api/upload'
 
 const defaultForm = {
@@ -96,6 +97,8 @@ const defaultForm = {
   url: undefined, // 文章访问链接
   tags: [],
   id: undefined,
+  isOriginal: true,
+  sourceUrl: undefined,
   isComment: true,
   isTop: false,
   visits: 0,
@@ -104,7 +107,7 @@ const defaultForm = {
 
 export default {
   name: 'ArticleDetail',
-  components: { mavonEditor, Sticky, CommentDropdown, TopDropdown },
+  components: { mavonEditor, Sticky, CommentDropdown, TopDropdown, OriginalDropdown },
   props: {
     isEdit: {
       type: Boolean,
@@ -189,12 +192,16 @@ export default {
       this.$store.dispatch('updateVisitedView', route)
     },
     submitForm(status) {
-      if (this.postForm.title === '') {
+      if (!this.postForm.title) {
         this.$message.warning('标题不能为空')
         return false
       }
-      if (this.postForm.contentMd === '') {
+      if (!this.postForm.contentMd) {
         this.$message.warning('文章内容不能为空')
+        return false
+      }
+      if (!this.postForm.isOriginal && !this.postForm.sourceUrl) {
+        this.$message.warning('转载文章请填写文章来源')
         return false
       }
       this.loading = true

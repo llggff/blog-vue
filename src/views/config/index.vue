@@ -129,7 +129,6 @@ export default {
     },
     // 上传图片
     uploadImg(data) {
-      debugger
       var formdata = new FormData()
       formdata.append('image', data.file)
       uploadImage(formdata).then(response => {
