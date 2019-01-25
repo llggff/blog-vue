@@ -6,9 +6,9 @@
     <el-table :default-sort = "{prop: 'id', order: 'descending'}" :data="list" border fit highlight-current-row style="width: 100%">
       <el-table-column align="center" label="ID" prop="id" width="150" sortable/>
 
-      <el-table-column align="center" label="分类" main-width="100" prop="name"/>
+      <el-table-column align="center" label="分类" min-width="100" prop="name"/>
 
-      <el-table-column align="center" label="分类链接" main-width="100">
+      <el-table-column align="center" label="分类链接" min-width="100">
         <template slot-scope="scope">
           <a :href="$store.getters.global.BLOG_URL+'category/'+scope.row.url+'/'" style="color: #337ab7;" target="_blank">{{ scope.row.url }}</a>
         </template>

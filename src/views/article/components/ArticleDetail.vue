@@ -156,14 +156,10 @@ export default {
     // 验证图片上传格式
     beforeImageUpload(file) {
       const isImage = /^image\/*/.test(file.type)
-      const isLt2M = file.size / 1024 / 1024 < 2
       if (!isImage) {
         this.$message.error('上传文件只能是图片!')
       }
-      if (!isLt2M) {
-        this.$message.error('上传文件大小不能超过 2MB!')
-      }
-      return isImage && isLt2M
+      return isImage
     },
     // 上传图片
     uploadImg(data, file) {

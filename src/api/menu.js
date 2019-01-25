@@ -1,31 +1,31 @@
 import request from '@/utils/request'
 
-export function getConfig() {
+export function getMenu() {
   return request({
-    url: '/config',
+    url: '/menu',
     method: 'get'
   })
 }
 
-export function putConfig(id) {
+export function putMenu(id) {
   return request({
-    url: '/config',
+    url: '/menu',
     method: 'put',
     params: { id }
   })
 }
 
-export function postConfig(data) {
+export function postMenu(data) {
   return request({
-    url: '/config',
+    url: '/menu',
     method: 'post',
     data
   })
 }
 
-export function deleteConfig(id) {
+export function deleteMenu(id) {
   return request({
-    url: '/config',
+    url: '/menu',
     method: 'delete',
     params: { id }
   })
