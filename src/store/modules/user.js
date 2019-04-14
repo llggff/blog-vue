@@ -1,6 +1,6 @@
 import { login, logout } from '@/api/login'
 import { putUser } from '@/api/user'
-import { getConfig } from '@/api/config'
+import { getGlobal } from '@/api/config'
 import { getToken, setToken, removeToken } from '@/utils/auth'
 
 const user = {
@@ -54,7 +54,7 @@ const user = {
     // 获取全局参数
     GetGlobalInfo({ commit }) {
       return new Promise((resolve, reject) => {
-        getConfig(1).then(response => {
+        getGlobal().then(response => {
           commit('SET_GLOBAL', response.data)
           resolve(response)
         }).catch(error => {

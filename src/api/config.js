@@ -30,3 +30,10 @@ export function deleteConfig(id) {
     params: { id }
   })
 }
+
+export function getGlobal() {
+  return request({
+    url: '/config/global',
+    method: 'get'
+  })
+}

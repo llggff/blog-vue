@@ -27,11 +27,7 @@
           <el-row>
             <el-col :span="11">
               <el-form-item label-width="60px" label="预览图:" class="postInfo-container-item">
-                <el-input v-model="postForm.image" placeholder="图片地址" class="postInfo-container-input">
-                  <el-upload slot="append" :before-upload="beforeImageUpload" :http-request="uploadImg" :show-file-list="false" action="" accept="image/gif,image/jpeg,image/jpg,image/png,image/svg">
-                    <el-button type="primary">上传图片<i class="el-icon-upload el-icon--right"/></el-button>
-                  </el-upload>
-                </el-input>
+                <upload-image v-model="postForm.image" class="postInfo-container-input"/>
               </el-form-item>
             </el-col>
 
@@ -85,7 +81,7 @@ import { putArticle, postArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import { getTag } from '@/api/tag'
 import { CommentDropdown, TopDropdown, OriginalDropdown } from './Dropdown'
-import { uploadImage } from '@/api/upload'
+import UploadImage from '@/components/UploadImage'
 
 const defaultForm = {
   title: '', // 文章题目
@@ -107,7 +103,7 @@ const defaultForm = {
 
 export default {
   name: 'ArticleDetail',
-  components: { mavonEditor, Sticky, CommentDropdown, TopDropdown, OriginalDropdown },
+  components: { mavonEditor, Sticky, CommentDropdown, TopDropdown, OriginalDropdown, UploadImage },
   props: {
     isEdit: {
       type: Boolean,
@@ -153,23 +149,6 @@ export default {
     }).catch()
   },
   methods: {
-    // 验证图片上传格式
-    beforeImageUpload(file) {
-      const isImage = /^image\/*/.test(file.type)
-      if (!isImage) {
-        this.$message.error('上传文件只能是图片!')
-      }
-      return isImage
-    },
-    // 上传图片
-    uploadImg(data, file) {
-      var formdata = new FormData()
-      formdata.append('image', file || data.file)
-      uploadImage(formdata).then(response => {
-        this.$message.success(response.msg)
-        file ? this.$refs.md.$img2Url(data, response.data) : this.postForm.image = response.data
-      })
-    },
     fetchData(id) {
       putArticle(id).then(response => {
         this.postForm = response.data

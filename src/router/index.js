@@ -124,6 +124,17 @@ export const constantRouterMap = [
     }]
   },
   {
+    path: '/link',
+    component: Layout,
+    redirect: '/link/list',
+    children: [{
+      path: 'list',
+      name: 'linkList',
+      component: () => import('@/views/link/index'),
+      meta: { title: '链接管理', icon: 'link', noCache: true }
+    }]
+  },
+  {
     path: '/user',
     component: Layout,
     redirect: '/user/info',
