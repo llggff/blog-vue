@@ -18,6 +18,17 @@
         </el-form-item>
         <el-button style="display:block;margin:0 auto;margin-bottom: 20px;" @click="addValue()">新增</el-button>
       </template>
+      <template v-else-if="'BLOG_SCRIPT'===dataForm.name||'BLOG_HEAD'===dataForm.name">
+        <el-form-item
+          v-for="(item, index) in dataForm.valueArr"
+          :label="'代码' + index"
+          :key="index"
+          :prop="'valueArr.' + index + '.value'">
+          <el-input v-model="item.value" placeholder="请输入代码" style="padding-right: 10px;width:90%"/>
+          <el-button @click.prevent="removeValue(item)">删除</el-button>
+        </el-form-item>
+        <el-button style="display:block;margin:0 auto;margin-bottom: 20px;" @click="addValue()">新增</el-button>
+      </template>
       <template v-else>
         <el-form-item label="参数值" prop="value">
           <template v-if="['BLOG_AVATAR', 'DEFAULT_IMAGE'].indexOf(dataForm.name)>-1">
@@ -84,6 +95,18 @@ export default {
               for (const val of valueArr) {
                 this.addValue(val)
               }
+            } else if (this.dataForm.name === 'BLOG_SCRIPT') {
+              const reg = /<script[^>]*?>([\s\S]*?)<\/script>/g
+              const valueArr = this.dataForm.value.match(reg)
+              for (const val of valueArr) {
+                this.addValue(val)
+              }
+            } else if (this.dataForm.name === 'BLOG_HEAD') {
+              const reg = /(<meta[^>]*?>)|(<link[^>]*?>)|(<style[^>]*?>([\s\S]*?)<\/style>)|(<script[^>]*?>([\s\S]*?)<\/script>)/g
+              const valueArr = this.dataForm.value.match(reg)
+              for (const val of valueArr) {
+                this.addValue(val)
+              }
             }
           })
         } else {
@@ -107,13 +130,22 @@ export default {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
           if (this.dataForm.name === 'BACKGROUND_LIST') {
-            const arr = []
+            var arr = []
             for (const val of this.dataForm.valueArr) {
               if (val.value) {
-                arr.push(val.value)
+                arr.push(val.value + '\n')
               }
             }
             this.dataForm.value = JSON.stringify(arr)
+            this.dataForm.valueArr = []
+          } else if (this.dataForm.name === 'BLOG_SCRIPT' || this.dataForm.name === 'BLOG_HEAD') {
+            var temp = ''
+            for (const val of this.dataForm.valueArr) {
+              if (val.value) {
+                temp += val.value + '\n'
+              }
+            }
+            this.dataForm.value = temp
             this.dataForm.valueArr = []
           }
           postConfig(this.dataForm).then(response => {

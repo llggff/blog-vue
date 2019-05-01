@@ -10,9 +10,12 @@
         <el-option key="1" label="已发布" value="1"/>
       </el-select>
       <el-button class="filter-item" type="primary" icon="el-icon-search" @click="handleFilter">搜索</el-button>
+      <el-button style="float: right;margin-right: 10px;" type="danger" icon="el-icon-delete" @click="deleteArticle(multipleSelection)">删除已选</el-button>
     </div>
 
-    <el-table v-loading="listLoading" :data="list" :default-sort = "{prop: 'id', order: 'descending'}" border fit highlight-current-row style="width: 100%" @sort-change="sortChange">
+    <el-table v-loading="listLoading" :data="list" :default-sort = "{prop: 'id', order: 'descending'}" border fit highlight-current-row style="width: 100%" @sort-change="sortChange" @selection-change="handleSelectionChange">
+      <el-table-column type="selection" width="40"/>
+
       <el-table-column align="center" label="ID" sortable="custom" prop="id" width="50"/>
 
       <el-table-column align="center" label="链接" width="100">
@@ -75,7 +78,7 @@
         </template>
       </el-table-column>
 
-      <el-table-column :width="articleStatus===2?300:200" align="center" label="操作">
+      <el-table-column :width="articleStatus===3?200:300" align="center" label="操作">
         <template slot-scope="scope">
           <router-link :to="'/article/edit/'+scope.row.id">
             <el-button type="primary" size="mini" icon="el-icon-edit">编辑</el-button>
@@ -83,13 +86,13 @@
           <template v-if="articleStatus===2">
             <el-button size="mini" icon="el-icon-refresh" style="margin-left: 10px;" type="success" @click="handleModifyStatus(scope.row.id,1)">还原
             </el-button>
-            <el-button size="mini" icon="el-icon-delete" style="margin-left: 10px;" type="danger" @click="deleteArticle(scope.row.id)">彻底删除
+          </template>
+          <template v-else-if="articleStatus!==3">
+            <el-button icon="el-icon-refresh" size="mini" style="margin-left: 10px;" type="warning" @click="handleModifyStatus(scope.row.id,2)">回收
             </el-button>
           </template>
-          <template v-else>
-            <el-button size="mini" icon="el-icon-delete" style="margin-left: 10px;" type="danger" @click="handleModifyStatus(scope.row.id,2)">删除
-            </el-button>
-          </template>
+          <el-button size="mini" icon="el-icon-delete" style="margin-left: 10px;" type="danger" @click="deleteArticle(scope.row.id)">删除
+          </el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -128,7 +131,8 @@ export default {
         ascs: undefined,
         descs: undefined
       },
-      categoryOptions: []
+      categoryOptions: [],
+      multipleSelection: []
     }
   },
   created() {
@@ -177,14 +181,21 @@ export default {
       })
     },
     // 删除文章
-    deleteArticle(id) {
+    deleteArticle(ids) {
+      if (ids instanceof Array && ids.length === 0) {
+        this.$message({
+          type: 'warning',
+          message: '请选择需要删除的对象'
+        })
+        return
+      }
       this.$confirm('此操作将永久删除该数据, 是否继续?', '提示', {
         confirmButtonText: '确定',
         cancelButtonText: '取消',
         type: 'warning'
       }).then(() => {
         this.listLoading = true
-        deleteArticle(id).then(response => {
+        deleteArticle(ids).then(response => {
           this.$message.success(response.msg)
           this.listLoading = false
           this.getList()
@@ -219,6 +230,9 @@ export default {
       modifyArticle({ 'id': id, 'isComment': isComment }).then(response => {
         this.$message.success(isComment ? '成功开启评论' : '成功关闭评论')
       })
+    },
+    handleSelectionChange(val) {
+      this.multipleSelection = val.map(function(v) { return v.id })
     }
   }
 }

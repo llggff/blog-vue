@@ -3,7 +3,7 @@
     <el-form ref="postForm" :model="postForm" class="form-container">
 
       <sticky :class-name="postForm.status===1?'sub-navbar published':'sub-navbar draft'">
-        <OriginalDropdown v-model="postForm.isOriginal" :source-url.sync="postForm.sourceUrl"/>
+        <!-- <OriginalDropdown v-model="postForm.isOriginal" :source-url.sync="postForm.sourceUrl"/> -->
         <CommentDropdown v-model="postForm.isComment" style="margin-left: 10px;"/>
         <TopDropdown v-model="postForm.isTop" style="margin-left: 10px;" />
         <el-button v-loading="loading" style="margin-left: 10px;" type="info" @click="submitForm(3)">自定义</el-button>
@@ -63,6 +63,28 @@
               </el-form-item>
             </el-col>
           </el-row>
+          <el-row :gutter="20">
+            <el-col :span="4">
+              <el-form-item label-width="80px" label="是否原创:" class="postInfo-container-item">
+                <el-switch v-model="postForm.isOriginal" active-color="#13ce66" inactive-color="#ff4949" @change="switchIsOriginal"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="10">
+              <el-form-item v-if="!postForm.isOriginal" label-width="80px" label="原文链接:" class="postInfo-container-item">
+                <el-input v-model="postForm.sourceUrl" placeholder="请输入文章来源" class="postInfo-container-input"/>
+              </el-form-item>
+            </el-col>
+
+            <el-col :span="8" :offset="2">
+              <el-form-item v-if="!postForm.isOriginal&&postForm.sourceUrl" label-width="80px" label="抓取规则:" class="postInfo-container-item">
+                <el-select v-model="spiderId" filterable placeholder="选择规则" class="postInfo-container-input" style="width:60%">
+                  <el-option v-for="item in spiderArr" :key="item.id" :label="item.name" :value="item.id"/>
+                </el-select>
+                <el-button v-loading="loading" style="margin-left:20px;" type="primary" @click="spider">抓取</el-button>
+              </el-form-item>
+            </el-col>
+          </el-row>
         </div>
 
         <mavonEditor ref="md" v-model="postForm.contentMd" :toolbars="toolbars" class="markdown-editor" @imgAdd="uploadImg"/>
@@ -81,7 +103,10 @@ import { putArticle, postArticle } from '@/api/article'
 import { getCategory } from '@/api/category'
 import { getTag } from '@/api/tag'
 import { CommentDropdown, TopDropdown, OriginalDropdown } from './Dropdown'
+import { uploadImage } from '@/api/upload'
 import UploadImage from '@/components/UploadImage'
+import { getSpider, spiderArticle } from '@/api/spider'
+import { isUrl } from '@/utils'
 
 const defaultForm = {
   title: '', // 文章题目
@@ -98,7 +123,8 @@ const defaultForm = {
   isComment: true,
   isTop: false,
   visits: 0,
-  status: 0
+  status: 0,
+  createTime: new Date()
 }
 
 export default {
@@ -117,7 +143,9 @@ export default {
       tagOptions: [],
       loading: false,
       tempRoute: {},
-      toolbars: toolbars
+      toolbars: toolbars,
+      spiderArr: [],
+      spiderId: null
     }
   },
   computed: {
@@ -149,6 +177,22 @@ export default {
     }).catch()
   },
   methods: {
+    switchIsOriginal(isOriginal) {
+      if (!isOriginal && this.spiderArr.length === 0) {
+        getSpider().then(response => {
+          this.spiderArr = response.data
+        })
+      }
+    },
+    // 上传图片
+    uploadImg(filename, file) {
+      var formdata = new FormData()
+      formdata.append('image', file)
+      uploadImage(formdata).then(response => {
+        this.$message.success(response.msg)
+        this.$refs.md.$img2Url(filename, response.data)
+      })
+    },
     fetchData(id) {
       putArticle(id).then(response => {
         this.postForm = response.data
@@ -189,13 +233,35 @@ export default {
           type: 'success',
           duration: 2000
         })
-        this.postForm = response.data
-        this.loading = false
-        // Set tagsview title
-        this.setTagsViewTitle()
+        // 保存成功之后直接关闭当前页
+        this.closeCurrTag()
       }).catch(err => {
         this.loading = false
         console.log(err)
+      })
+    },
+    closeCurrTag() {
+      this.$store.dispatch('delView', this.$route).then(({ visitedViews }) => {
+        const latestView = visitedViews.slice(-1)[0]
+        if (latestView) {
+          this.$router.push(latestView)
+        } else {
+          this.$router.push('/')
+        }
+      })
+    },
+    spider() {
+      if (!this.spiderId) {
+        this.$message.warning('请选择爬虫规则')
+        return
+      }
+      if (!this.postForm.sourceUrl || !isUrl(this.postForm.sourceUrl)) {
+        this.$message.warning('请输入正确的文章来源链接')
+        return
+      }
+      spiderArticle({ id: this.spiderId, url: this.postForm.sourceUrl }).then(response => {
+        this.$message.success(response.msg)
+        Object.assign(this.postForm, response.data)
       })
     }
   }

@@ -1,4 +1,5 @@
 import request from '@/utils/request'
+import qs from 'qs'
 
 export function getArticle(query) {
   return request({
@@ -24,11 +25,14 @@ export function postArticle(data) {
   })
 }
 
-export function deleteArticle(id) {
+export function deleteArticle(ids) {
   return request({
     url: '/article',
     method: 'delete',
-    params: { id }
+    params: { ids },
+    paramsSerializer: params => {
+      return qs.stringify(params, { indices: false })
+    }
   })
 }
 

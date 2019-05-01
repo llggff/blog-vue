@@ -124,6 +124,17 @@ export const constantRouterMap = [
     }]
   },
   {
+    path: '/spider',
+    component: Layout,
+    redirect: '/spider/list',
+    children: [{
+      path: 'spider',
+      name: 'spiderList',
+      component: () => import('@/views/spider/index'),
+      meta: { title: '规则管理', icon: 'spider', noCache: true }
+    }]
+  },
+  {
     path: '/link',
     component: Layout,
     redirect: '/link/list',
