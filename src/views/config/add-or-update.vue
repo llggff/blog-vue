@@ -7,7 +7,7 @@
       <el-form-item label="参数名" prop="name">
         <el-input :disabled="dataForm.id>0" v-model="dataForm.name" placeholder="请输入参数名"/>
       </el-form-item>
-      <template v-if="'BACKGROUND_LIST'===dataForm.name">
+      <template v-if="CONFIG_KEY.BACKGROUND_LIST===dataForm.name">
         <el-form-item
           v-for="(item, index) in dataForm.valueArr"
           :label="'值' + index"
@@ -18,7 +18,7 @@
         </el-form-item>
         <el-button style="display:block;margin:0 auto;margin-bottom: 20px;" @click="addValue()">新增</el-button>
       </template>
-      <template v-else-if="'BLOG_SCRIPT'===dataForm.name||'BLOG_HEAD'===dataForm.name">
+      <template v-else-if="CONFIG_KEY.BLOG_SCRIPT===dataForm.name||CONFIG_KEY.BLOG_HEAD===dataForm.name">
         <el-form-item
           v-for="(item, index) in dataForm.valueArr"
           :label="'代码' + index"
@@ -29,9 +29,10 @@
         </el-form-item>
         <el-button style="display:block;margin:0 auto;margin-bottom: 20px;" @click="addValue()">新增</el-button>
       </template>
+      <oss-config v-else-if="CONFIG_KEY.FILE_STORAGE===dataForm.name" v-model="dataForm.value"/>
       <template v-else>
         <el-form-item label="参数值" prop="value">
-          <template v-if="['BLOG_AVATAR', 'DEFAULT_IMAGE'].indexOf(dataForm.name)>-1">
+          <template v-if="[CONFIG_KEY.BLOG_AVATAR, CONFIG_KEY.DEFAULT_IMAGE].indexOf(dataForm.name)>-1">
             <upload-image v-model="dataForm.value"/>
           </template>
           <template v-else>
@@ -59,6 +60,7 @@
 <script>
 import { putConfig, postConfig } from '@/api/config'
 import UploadImage from '@/components/UploadImage'
+import OssConfig from './oss-config'
 
 const defaultForm = {
   id: 0,
@@ -68,8 +70,17 @@ const defaultForm = {
   type: 1,
   valueArr: []
 }
+// 一些特殊处理的cofig key
+const CONFIG_KEY = {
+  BLOG_SCRIPT: 'BLOG_SCRIPT',
+  BLOG_HEAD: 'BLOG_HEAD',
+  BACKGROUND_LIST: 'BACKGROUND_LIST',
+  BLOG_AVATAR: 'BLOG_AVATAR',
+  DEFAULT_IMAGE: 'DEFAULT_IMAGE',
+  FILE_STORAGE: 'FILE_STORAGE'
+}
 export default {
-  components: { UploadImage },
+  components: { UploadImage, OssConfig },
   data() {
     return {
       visible: false,
@@ -78,7 +89,8 @@ export default {
         name: [
           { required: true, message: '参数名不能为空', trigger: 'blur' }
         ]
-      }
+      },
+      CONFIG_KEY: CONFIG_KEY
     }
   },
   methods: {
@@ -90,18 +102,18 @@ export default {
           putConfig(id).then(response => {
             response.data.valueArr = []
             this.dataForm = response.data
-            if (this.dataForm.name === 'BACKGROUND_LIST') {
+            if (this.dataForm.name === CONFIG_KEY.BACKGROUND_LIST) {
               const valueArr = JSON.parse(this.dataForm.value)
               for (const val of valueArr) {
                 this.addValue(val)
               }
-            } else if (this.dataForm.name === 'BLOG_SCRIPT') {
+            } else if (this.dataForm.name === CONFIG_KEY.BLOG_SCRIPT) {
               const reg = /<script[^>]*?>([\s\S]*?)<\/script>/g
               const valueArr = this.dataForm.value.match(reg)
               for (const val of valueArr) {
                 this.addValue(val)
               }
-            } else if (this.dataForm.name === 'BLOG_HEAD') {
+            } else if (this.dataForm.name === CONFIG_KEY.BLOG_HEAD) {
               const reg = /(<meta[^>]*?>)|(<link[^>]*?>)|(<style[^>]*?>([\s\S]*?)<\/style>)|(<script[^>]*?>([\s\S]*?)<\/script>)/g
               const valueArr = this.dataForm.value.match(reg)
               for (const val of valueArr) {
@@ -129,7 +141,7 @@ export default {
     dataFormSubmit() {
       this.$refs['dataForm'].validate((valid) => {
         if (valid) {
-          if (this.dataForm.name === 'BACKGROUND_LIST') {
+          if (this.dataForm.name === CONFIG_KEY.BACKGROUND_LIST) {
             var arr = []
             for (const val of this.dataForm.valueArr) {
               if (val.value) {
@@ -138,7 +150,7 @@ export default {
             }
             this.dataForm.value = JSON.stringify(arr)
             this.dataForm.valueArr = []
-          } else if (this.dataForm.name === 'BLOG_SCRIPT' || this.dataForm.name === 'BLOG_HEAD') {
+          } else if (this.dataForm.name === CONFIG_KEY.BLOG_SCRIPT || this.dataForm.name === CONFIG_KEY.BLOG_HEAD) {
             var temp = ''
             for (const val of this.dataForm.valueArr) {
               if (val.value) {
